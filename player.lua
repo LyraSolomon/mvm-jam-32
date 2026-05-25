@@ -1,19 +1,122 @@
 require("engine.vector")
 
 player = {
-	speed = 1,
+	--speed = 1,
+	movement = {
+		speed = 2,
+		accel = 10,
+		fall = 20,
+		grav= 9,
+		jump_vel = 20 -- TODO calculate this from jump height instead
+	},
 	velocity = vec(0, 0),
+	touching = {
+		ground = false,
+		ceiling = false,
+		wall = false,
+	},
 	aabb = {
-		x = 0,
-		y = 0,
+		x = 100,
+		y = 100,
 		w = 10,
 		h = 10,
-		normal = {},
+		--normal = {},
 	},
-	pointer = vec(0, 0),
-	looking_at = nil,
+	--pointer = vec(0, 0),
+	--looking_at = nil,
 }
 
+function player:update(dt)
+	local input_dir = vector.utils.input_vector()
+	local input_accel = { x = input_dir.x * self.movement.accel, y = self.movement.grav }
+	local state_accel = { x = -self.velocity.x * self.movement.accel / self.movement.speed, y = -self.velocity.y * self.movement.grav / self.movement.fall }
+	self.velocity.x = self.velocity.x + dt * (input_accel.x + state_accel.x)
+	self.velocity.y = self.velocity.y + dt * (input_accel.y + state_accel.y)
+	if self.touching.ground and input.held(input.BTN1) then
+		self.velocity.y = -self.movement.jump_vel
+	end
+	player:move_to({x = self.aabb.x + self.velocity.x, y = self.aabb.y + self.velocity.y})
+end
+
+function player:move_to(target)
+	local displacement = { x = target.x - player.aabb.x, y = target.y - player.aabb.y }
+	local collision_points = {
+		{ x = player.aabb.x - player.aabb.w / 2, y = player.aabb.y },
+		{ x = player.aabb.x + player.aabb.w / 2, y = player.aabb.y },
+		{ x = player.aabb.x - player.aabb.w / 2, y = player.aabb.y - player.aabb.h },
+		{ x = player.aabb.x + player.aabb.w / 2, y = player.aabb.y - player.aabb.h },
+	}
+	local floor_collision = nil
+	local wall_collision = nil
+	for _, start_point in pairs(collision_points) do
+		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
+		local collisions = world:collisions(start_point, target_point)
+		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
+			floor_collision = collisions.floor
+		end
+		if (not wall_collision) or (collisions.wall and collisions.wall < wall_collision) then
+			wall_collision = collisions.wall
+		end
+	end
+	-- need to to run this twice to avoid clipping through when one velocity is much greater than another
+	-- add an epsilon so that it remains true on the second run
+	if floor_collision then
+		displacement.y = displacement.y * (floor_collision + 0.001)
+	end
+	if wall_collision then
+		displacement.x = displacement.x * (wall_collision + 0.001)
+	end
+	floor_collision = nil
+	wall_collision = nil
+	for _, start_point in pairs(collision_points) do
+		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
+		local collisions = world:collisions(start_point, target_point)
+		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
+			floor_collision = collisions.floor
+		end
+		if (not wall_collision) or (collisions.wall and collisions.wall < wall_collision) then
+			wall_collision = collisions.wall
+		end
+	end
+
+	player.touching.ground = false
+	player.touching.ceiling = false
+	player.touching.wall = false
+	if floor_collision then
+		if displacement.y > 0 then
+			player.aabb.y = player.aabb.y - 0.1
+			player.touching.ground = true
+		end
+		if displacement.y < 0 then
+			player.aabb.y = player.aabb.y + 0.1
+			player.touching.ceiling = true
+		end
+		displacement.y = displacement.y * floor_collision
+		player.velocity.y = 0
+	else
+	end
+	if wall_collision then
+		if displacement.x > 0 then
+			player.aabb.x = player.aabb.x - 0.1
+			player.touching.wall = true
+		end
+		if displacement.x < 0 then
+			player.aabb.x = player.aabb.x + 0.1
+			player.touching.wall = true
+		end
+		displacement.x = displacement.x * wall_collision
+		player.velocity.x = 0
+	end
+	player.aabb.x = player.aabb.x + displacement.x
+	player.aabb.y = player.aabb.y + displacement.y
+end
+
+function player:draw()
+	--gfx.rect_fill(player.aabb.x, player.aabb.y, 10, 10, gfx.COLOR_WHITE)
+	gfx.rect_fill(player.aabb.x - player.aabb.w / 2, player.aabb.y - player.aabb.h, player.aabb.w, player.aabb.h, gfx.COLOR_WHITE)
+end
+
+--[[
 function player:update(dt)
 	self:input()
 	if self.aabb.normal.y ~= -1 then
@@ -57,3 +160,4 @@ function player:input()
 		print(index)
 	end
 end
+]]

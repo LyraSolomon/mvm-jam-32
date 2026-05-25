@@ -6,6 +6,7 @@ function _config()
 	return { name = "Game", game_id = "com.usagiengine.YOURGAMENAME", pixel_perfect = true }
 end
 
+--[[
 for i = 0, 10 do
 	block = {
 		aabb = {
@@ -18,6 +19,7 @@ for i = 0, 10 do
 	collision.add(block.aabb)
 	world.utils.set_tile(block.aabb.x, block.aabb.y, block)
 end
+]]
 
 function _init()
 	State = {}
@@ -25,10 +27,11 @@ end
 
 function _update(dt)
 	player:update(dt)
+	world:update_room()
 end
 
 function _draw(dt)
 	gfx.clear(gfx.COLOR_BLACK)
-	player:draw()
 	world:draw()
+	player:draw()
 end
