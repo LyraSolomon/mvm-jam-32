@@ -67,35 +67,6 @@ function world:update_room()
 	end
 end
 
-function world:collisions(start, target)
-	-- TODO: support sloped floors and walls? (optional)
-	local floor_collision = nil
-	local wall_collision = nil
-	for _, floor in pairs(world[current_scene].floors) do
-		if (start.y < floor.left.y) ~= (target.y < floor.left.y) then
-			local portion = (floor.left.y - start.y) / (target.y - start.y)
-			local intersection_x = (target.x - start.x) * portion + start.x
-			if intersection_x >= floor.left.x and intersection_x <= floor.right.x then
-				if (not floor_collision) or portion < floor_collision then
-					floor_collision = portion
-				end
-			end
-		end
-	end
-	for _, wall in pairs(world[current_scene].walls) do
-		if (start.x < wall.bottom.x) ~= (target.x < wall.bottom.x) then
-			local portion = (wall.bottom.x - start.x) / (target.x - start.x)
-			local intersection_y = (target.y - start.y) * portion + start.y
-			if intersection_y >= wall.top.y and intersection_y <= wall.bottom.y then
-				if (not wall_collision) or portion < wall_collision then
-					wall_collision = portion
-				end
-			end
-		end
-	end
-	return { floor = floor_collision, wall = wall_collision }
-end
-
 --[[
 function world.utils.update_colliders()
 	for _, v in pairs(world.tiles) do

@@ -39,80 +39,16 @@ function player:update(dt)
 end
 
 function player:move_to(target)
-	local displacement = { x = target.x - player.aabb.x, y = target.y - player.aabb.y }
-	local collision_points = {
-		{ x = player.aabb.x - player.aabb.w / 2, y = player.aabb.y },
-		{ x = player.aabb.x + player.aabb.w / 2, y = player.aabb.y },
-		{ x = player.aabb.x - player.aabb.w / 2, y = player.aabb.y - player.aabb.h },
-		{ x = player.aabb.x + player.aabb.w / 2, y = player.aabb.y - player.aabb.h },
-	}
-	local floor_collision = nil
-	local wall_collision = nil
-	for _, start_point in pairs(collision_points) do
-		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
-		local collisions = world:collisions(start_point, target_point)
-		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
-			floor_collision = collisions.floor
-		end
-		if (not wall_collision) or (collisions.wall and collisions.wall < wall_collision) then
-			wall_collision = collisions.wall
-		end
+	self.aabb, self.touching = move_to(world[current_scene], self.aabb, target)
+	if self.touching.ceiling or self.touching.ground then
+		self.velocity.y = 0
 	end
-	-- need to to run this twice to avoid clipping through when one velocity is much greater than another
-	-- add an epsilon so that it remains true on the second run
-	if floor_collision then
-		displacement.y = displacement.y * (floor_collision + 0.001)
+	if self.touching.wall then
+		self.velocity.x = 0
 	end
-	if wall_collision then
-		displacement.x = displacement.x * (wall_collision + 0.001)
-	end
-	floor_collision = nil
-	wall_collision = nil
-	for _, start_point in pairs(collision_points) do
-		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
-		local collisions = world:collisions(start_point, target_point)
-		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
-			floor_collision = collisions.floor
-		end
-		if (not wall_collision) or (collisions.wall and collisions.wall < wall_collision) then
-			wall_collision = collisions.wall
-		end
-	end
-
-	player.touching.ground = false
-	player.touching.ceiling = false
-	player.touching.wall = false
-	if floor_collision then
-		if displacement.y > 0 then
-			player.aabb.y = player.aabb.y - 0.1
-			player.touching.ground = true
-		end
-		if displacement.y < 0 then
-			player.aabb.y = player.aabb.y + 0.1
-			player.touching.ceiling = true
-		end
-		displacement.y = displacement.y * floor_collision
-		player.velocity.y = 0
-	else
-	end
-	if wall_collision then
-		if displacement.x > 0 then
-			player.aabb.x = player.aabb.x - 0.1
-			player.touching.wall = true
-		end
-		if displacement.x < 0 then
-			player.aabb.x = player.aabb.x + 0.1
-			player.touching.wall = true
-		end
-		displacement.x = displacement.x * wall_collision
-		player.velocity.x = 0
-	end
-	player.aabb.x = player.aabb.x + displacement.x
-	player.aabb.y = player.aabb.y + displacement.y
 end
 
 function player:draw()
-	--gfx.rect_fill(player.aabb.x, player.aabb.y, 10, 10, gfx.COLOR_WHITE)
 	gfx.rect_fill(player.aabb.x - player.aabb.w / 2, player.aabb.y - player.aabb.h, player.aabb.w, player.aabb.h, gfx.COLOR_WHITE)
 end
 
