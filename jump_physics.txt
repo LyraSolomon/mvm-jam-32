@@ -30,9 +30,6 @@ y'(t) = a/b - c*e^-bt
 c = a/b-v
 c2 = -c/b
 
-y(t) = c * exp(-(g/vmax)*t) * vmax/g + t*vmax + c2 ## per WolframAlpha
-
-
 === boosted jumps ===
 not even gonna try for an analytic solution on this one rn
 -- TODO
