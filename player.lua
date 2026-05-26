@@ -96,7 +96,7 @@ function player:update(dt)
 end
 
 function player:move_to(target)
-	self.aabb, self.touching = move_to(world[current_scene], self.aabb, target)
+	self.aabb, self.touching = collision.move_to(world[current_scene], self.aabb, target)
 	if self.touching.ceiling or self.touching.ground then
 		self.velocity.y = 0
 	end
@@ -106,6 +106,12 @@ function player:move_to(target)
 end
 
 function player:draw()
-	gfx.rect_fill(player.aabb.x - player.aabb.w / 2, player.aabb.y - player.aabb.h, player.aabb.w, player.aabb.h, gfx.COLOR_WHITE)
+	gfx.rect_fill(
+		player.aabb.x - player.aabb.w / 2,
+		player.aabb.y - player.aabb.h,
+		player.aabb.w,
+		player.aabb.h,
+		gfx.COLOR_WHITE
+	)
 end
 

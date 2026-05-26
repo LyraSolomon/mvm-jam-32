@@ -1,5 +1,7 @@
+collision = {}
+
 -- returns the first interruption from (start) -> (target) along each axis as a ratio from 0-1
-function path_interruptions(room, start, target)
+function collision.path_interruptions(room, start, target)
 	-- TODO: support sloped floors and walls? (optional)
 	local floor_collision = nil
 	local wall_collision = nil
@@ -28,7 +30,7 @@ function path_interruptions(room, start, target)
 	return { floor = floor_collision, wall = wall_collision }
 end
 
-function move_to(room, start, target)
+function collision.move_to(room, start, target)
 	local displacement = { x = target.x - start.x, y = target.y - start.y }
 	-- run path_interruptions on each corner of the hitbox
 	local collision_points = {
@@ -41,7 +43,7 @@ function move_to(room, start, target)
 	local wall_collision = nil
 	for _, start_point in pairs(collision_points) do
 		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
-		local collisions = path_interruptions(room, start_point, target_point)
+		local collisions = collision.path_interruptions(room, start_point, target_point)
 		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
 			floor_collision = collisions.floor
 		end
@@ -63,7 +65,7 @@ function move_to(room, start, target)
 	wall_collision = nil
 	for _, start_point in pairs(collision_points) do
 		local target_point = { x = start_point.x + displacement.x, y = start_point.y + displacement.y }
-		local collisions = path_interruptions(room, start_point, target_point)
+		local collisions = collision.path_interruptions(room, start_point, target_point)
 		if (not floor_collision) or (collisions.floor and collisions.floor < floor_collision) then
 			floor_collision = collisions.floor
 		end

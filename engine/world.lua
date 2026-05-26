@@ -6,7 +6,13 @@ current_scene = "initial"
 
 function world:draw()
 	for _, transition in pairs(world[current_scene].transitions) do
-		gfx.rect_fill(transition.x1, transition.y1, transition.x2 - transition.x1, transition.y2 - transition.y1, gfx.COLOR_DARK_GRAY)
+		gfx.rect_fill(
+			transition.x1,
+			transition.y1,
+			transition.x2 - transition.x1,
+			transition.y2 - transition.y1,
+			gfx.COLOR_DARK_GRAY
+		)
 	end
 	for _, wall in pairs(world[current_scene].walls) do
 		gfx.line(wall.bottom.x, wall.bottom.y, wall.top.x, wall.top.y, gfx.COLOR_DARK_BLUE)
@@ -18,7 +24,12 @@ end
 
 function world:update_room()
 	for _, transition in pairs(world[current_scene].transitions) do
-		if player.aabb.x >= transition.x1 and player.aabb.x <= transition.x2 and player.aabb.y >= transition.y1 and player.aabb.y <= transition.y2 then
+		if
+			player.aabb.x >= transition.x1
+			and player.aabb.x <= transition.x2
+			and player.aabb.y >= transition.y1
+			and player.aabb.y <= transition.y2
+		then
 			if transition.target.x then
 				player.aabb.x = transition.target.x
 			end
