@@ -1,18 +1,37 @@
+require("player")
+require("engine.collision")
+require("engine.world")
+
 function _config()
-  return { name = "Game", game_id = "com.usagiengine.YOURGAMENAME" }
+	return { name = "Game", game_id = "com.usagiengine.YOURGAMENAME", pixel_perfect = true }
 end
 
+for i = 0, 35 do
+	block = {
+		aabb = {
+			x = i * 10,
+			y = 150,
+			w = 10,
+			h = 10,
+		},
+	}
+	collision.add(block.aabb)
+	world.utils.set_tile(block.aabb.x, block.aabb.y, block)
+end
+
+collision.add(player.aabb)
+
 function _init()
-  -- Live reload preserves globals across saved edits but resets locals.
-  -- Stash mutable game state in a capitalized global like `State` so it
-  -- survives reloads; F5 calls _init again to reset.
-  State = {}
+	State = {}
 end
 
 function _update(dt)
+	player:update(dt)
 end
 
 function _draw(dt)
-  gfx.clear(gfx.COLOR_BLACK)
-  gfx.text("Hello, Usagi!", 10, 10, gfx.COLOR_WHITE)
+	gfx.clear(gfx.COLOR_BLACK)
+	player:draw()
+	world:draw()
+	collision.draw()
 end
