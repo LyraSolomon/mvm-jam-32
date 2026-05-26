@@ -3,7 +3,6 @@
 y'' = g - y' * g / vmax
 y'(0) = v
 y(t) = c * exp(-(g/vmax)*t) * vmax/g + t*vmax + c2 ## per WolframAlpha
--- TODO
 y'(t) = -c * exp(-(g/vmax)*t) + vmax
 y'(0) = v = -c + vmax = v
 c = vmax - v
@@ -22,5 +21,19 @@ per WolframAlpha,
 v = vmax * (W(-exp(-y*g/vmax^2-1))+1), where W is the Lambert W / product log function
 however, this is incorrect for whatever reason. Newton's Method it is!
 
+=== physics step ===
+y'' = a - b*y'
+y'(0) = v
+y(0) = 0
+y(t) = at/b + c/b*e^-bt + c2 ## per WolframAlpha
+y'(t) = a/b - c*e^-bt
+c = a/b-v
+c2 = -c/b
+
+y(t) = c * exp(-(g/vmax)*t) * vmax/g + t*vmax + c2 ## per WolframAlpha
+
+
 === boosted jumps ===
 not even gonna try for an analytic solution on this one rn
+-- TODO
+

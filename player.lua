@@ -33,6 +33,10 @@ player = {
 	},
 }
 
+function player.boost_ratio(t)
+	return t ^ 0.75
+end
+
 -- see jump_physics.txt
 -- or don't, differential equations are hell
 function player.max_jump_height(velocity)
@@ -50,8 +54,12 @@ function player.jump_velocity(height)
 	return guess
 end
 
-function player.boost_ratio(t)
-	return t ^ 0.75
+function physics_step(input, gamma, v0, x0, dt)
+	local c = input / gamma - v0
+	local c2 = -c / gamma
+	local v1 = input / gamma - c * math.exp(-gamma * dt)
+	local dx = input * dt / gamma + c * math.exp(-gamma * dt) / gamma + c2
+	return v1, x0 + dx
 end
 
 function player:update(dt)
@@ -66,9 +74,6 @@ function player:update(dt)
 
 	local input_dir = vector.utils.input_vector()
 	local input_accel = { x = input_dir.x * self.movement.accel, y = self.movement.grav }
-	local state_accel = { x = -self.velocity.x * self.movement.accel / self.movement.speed, y = -self.velocity.y * self.movement.grav / self.movement.fall }
-	self.velocity.x = self.velocity.x + dt * (input_accel.x + state_accel.x)
-	self.velocity.y = self.velocity.y + dt * (input_accel.y + state_accel.y)
 	if input.held(input.BTN1) then
 		if self.state.coyote_timer < self.movement.coyote_time then
 			self.velocity.y = -player.jump_velocity(self.movement.jump_height)
@@ -84,7 +89,10 @@ function player:update(dt)
 	else
 		self.state.jump_held = self.movement.jump_boost_time + 1
 	end
-	player:move_to({x = self.aabb.x + self.velocity.x * dt, y = self.aabb.y + self.velocity.y * dt})
+	local target = {}
+	self.velocity.x, target.x = physics_step(input_accel.x, self.movement.accel / self.movement.speed, self.velocity.x, self.aabb.x, dt)
+	self.velocity.y, target.y = physics_step(input_accel.y, self.movement.grav / self.movement.fall, self.velocity.y, self.aabb.y, dt)
+	player:move_to(target)
 end
 
 function player:move_to(target)
