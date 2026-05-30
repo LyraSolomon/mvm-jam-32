@@ -1,0 +1,50 @@
+[
+    {
+        "name": "monitor",
+        "behavior": "turret_tank",
+        "sprites": "monitor",
+        "stats": {
+            "w": 16,
+            "h": 12,
+            "xray": false,
+            "detect_radius": 100,
+            "detect_time": 2,
+            "forget_radius": 100,
+            "forget_time": 1.5,
+            "max_hp": 5,
+            "y_pad": 4,
+            "idle_loop": 1,
+            "death_time": 1,
+            "fade_time": 4,
+            "attacks": [
+                { "windup": 1, "recovery": 0.5, "damage": null }
+            ],
+            "speed": 40,
+            "turn_time": 0.8
+        }
+    },
+    {
+        "name": "monitor_mk2",
+        "behavior": "turret_tank",
+        "sprites": "monitor",
+        "stats": {
+            "w": 16,
+            "h": 12,
+            "xray": true,
+            "detect_radius": 100,
+            "detect_time": 1,
+            "forget_radius": 150,
+            "forget_time": 2.5,
+            "max_hp": 8,
+            "y_pad": 4,
+            "idle_loop": 1,
+            "death_time": 1,
+            "fade_time": 4,
+            "attacks": [
+                { "windup": 0.8, "recovery": 0.4, "damage": null }
+            ],
+            "speed": 60,
+            "turn_time": 0.4
+        }
+    }
+]

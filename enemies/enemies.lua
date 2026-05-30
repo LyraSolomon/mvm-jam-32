@@ -19,6 +19,7 @@ enemies = {}
 		detect_time = 2,
 		forget_radius = 100,
 		forget_time = 1.5,
+		turn_time = 1,
 		attacks = {{
 			windup = 1,
 			recovery = 0.5,
@@ -30,23 +31,22 @@ enemies = {}
 		fade_time = 4
 	},
 ]]
-function enemies:create(movement)
+function enemies:new()
 	local enemy = {}
 	setmetatable(enemy, self)
 	self.__index = self
-	enemy.movement = movement
 	return enemy
 end
 
 function enemies:init()
 	self.aabb = {}
-	self.aabb.w = self.movement.w
-	self.aabb.h = self.movement.h
+	self.aabb.w = self.stats.w
+	self.aabb.h = self.stats.h
 	self.state = {}
 	self.state.aware = 0
 	self.state.death_timer = 0
 	self.state.idle_timer = 0
-	self.state.hp = self.movement.max_hp
+	self.state.hp = self.stats.max_hp
 	self.state.turn_timer = 0
 end
 
@@ -72,7 +72,7 @@ function enemies:update(dt)
 		return
 	end
 	if self.state.current_attack ~= nil then
-		local attack = self.movement.attacks[self.state.current_attack]
+		local attack = self.stats.attacks[self.state.current_attack]
 		if self.state.attack_timer < attack.windup and self.state.attack_timer + dt >= attack.windup then
 			self.check_hit()
 		end
@@ -83,8 +83,8 @@ function enemies:update(dt)
 	end
 	if self.state.current_attack == nil then
 		-- Update awareness meter
-		if dist_test(self.aabb, player.aabb, self.movement.detect_radius) then
-			if self.movement.xray or collision.lineofsight(world[current_scene], self.aabb, player.aabb) then
+		if dist_test(self.aabb, player.aabb, self.stats.detect_radius) then
+			if self.stats.xray or collision.lineofsight(world[current_scene], self.aabb, player.aabb) then
 				self.state.last_detected_direction = 0 -- TODO
 				if self.aabb.x < player.aabb.x then
 					self.state.last_detected_direction = 1
@@ -93,30 +93,29 @@ function enemies:update(dt)
 					self.state.last_detected_direction = -1
 					self.state.direction = 2
 				end
-				self.state.aware = math.min(self.state.aware + dt / self.movement.detect_time, 1)
+				self.state.aware = math.min(self.state.aware + dt / self.stats.detect_time, 1)
 			else
-				self.state.aware = math.max(self.state.aware - dt / self.movement.forget_time, 0)
+				self.state.aware = math.max(self.state.aware - dt / self.stats.forget_time, 0)
 			end
 		elseif
-			(not dist_test(self.aabb, player.aabb, self.movement.forget_radius)) or
-			(not (self.movement.xray or collision.lineofsight(world[current_scene], self.aabb, player.aabb))) then
-			self.state.aware = math.max(self.state.aware - dt / self.movement.forget_time, 0)
+			(not dist_test(self.aabb, player.aabb, self.stats.forget_radius)) or
+			(not (self.stats.xray or collision.lineofsight(world[current_scene], self.aabb, player.aabb))) then
+			self.state.aware = math.max(self.state.aware - dt / self.stats.forget_time, 0)
 		end
 		self:state_machine(dt)
 	end
 end
 
 function enemies:draw()
-	self.animation = animations.enemies["monitor"]
-	local animation = self.animation.idle
-	local animation_time = self.state.idle_timer / self.movement.idle_loop
+	local animation = nil
+	local animation_time = 0
 	local alpha = 1
 	if self.state.hp <= 0 then
 		animation = self.animation.death
-		animation_time = self.state.death_timer / self.movement.death_time
-		alpha = 1 - (self.state.death_timer - self.movement.death_time) / self.movement.fade_time
+		animation_time = self.state.death_timer / self.stats.death_time
+		alpha = 1 - (self.state.death_timer - self.stats.death_time) / self.stats.fade_time
 	elseif self.state.current_attack ~= nil then
-		local attack = self.movement.attacks[self.state.current_attack]
+		local attack = self.stats.attacks[self.state.current_attack]
 		if self.state.attack_timer < attack.windup then
 			animation = self.animation.attacks[self.state.current_attack].windup
 			animation_time = self.state.attack_timer / attack.windup
@@ -128,14 +127,14 @@ function enemies:draw()
 		animation, animation_time = self:state_animation()
 		if animation == nil then
 			animation = self.animation.idle
-			animation_time = self.state.idle_timer / self.movement.idle_loop
+			animation_time = self.state.idle_timer / self.stats.idle_loop
 		end
 	end
 	gfx.spr_ex(
-		spritepage["monitor"] + animation_frame(animation, animation_time),
+		self.sprites_start + animation_frame(animation, animation_time),
 		self.aabb.x - self.aabb.w / 2,
-		self.aabb.y - self.aabb.h - self.movement.y_pad,
-		self.state.turn_timer < 0.5,
+		self.aabb.y - self.aabb.h - self.stats.y_pad,
+		self.state.turn_timer / self.stats.turn_time < 0.5,
 		false,
 		0,
 		gfx.COLOR_TRUE_WHITE,
@@ -154,10 +153,10 @@ function dist_test(aabb1, aabb2, r)
 	return dx*dx+dy*dy < r*r
 end
 
-function animation_frame(animation, time)
-	for _, frame in pairs(animation) do
-		if time < frame.end_at or frame.end_at == 1 then
-			return frame.frame
-		end
-	end
+require("enemies.turret_tank")
+
+for _, enemy in pairs(usagi.read_json("enemies.json")) do
+	enemies[enemy.name] = enemies[enemy.behavior]:new(enemy.stats)
+	enemies[enemy.name].sprites_start = spritepage[enemy.sprites]
+	enemies[enemy.name].animation = animations.enemies[enemy.sprites]
 end

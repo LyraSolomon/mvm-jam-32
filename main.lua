@@ -1,16 +1,12 @@
 require("player")
 require("engine.collision")
+require("engine.animations")
 require("enemies.enemies")
-require("enemies.monitor")
 require("engine.world")
-require("spritepage")
 
 function _config()
 	return { name = "Game", game_id = "com.usagiengine.YOURGAMENAME", pixel_perfect = true }
 end
-
-animations = usagi.read_json("animations.json")
--- TODO validation check
 
 function _init()
 	State = {}

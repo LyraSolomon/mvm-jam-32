@@ -1,25 +1,14 @@
 -- Prototype for a simple ground-based enemy with ranged attack
 
-enemies.monitor = enemies:create({
-	w = 16,
-	h = 12,
-	speed = 40,
-	turn_time = 0.8,
-	xray = false,
-	detect_radius = 100,
-	detect_time = 2,
-	forget_radius = 100,
-	forget_time = 1.5,
-	attacks = {{
-		windup = 1,
-		recovery = 0.5,
-	}},
-	max_hp = 5,
-	y_pad = 4,
-	idle_loop = 1,
-	death_time = 1,
-	fade_time = 4
-})
+enemies.turret_tank = enemies:new()
+
+function enemies.turret_tank:new(stats)
+	local enemy = {}
+	setmetatable(enemy, self)
+	self.__index = self
+	enemy.stats = stats
+	return enemy
+end
 
 --[[ example:
 	settings = {
@@ -29,7 +18,7 @@ enemies.monitor = enemies:create({
 		direction = 1,
 	},
 ]]
-function enemies.monitor:spawn(settings)
+function enemies.turret_tank:spawn(settings)
 	local spawn = {}
 	setmetatable(spawn, self)
 	self.__index = self
@@ -41,24 +30,24 @@ function enemies.monitor:spawn(settings)
 	if settings.direction == 1 then
 		spawn.state.turn_timer = 0
 	elseif settings.direction == 3 then
-		spawn.state.turn_timer = self.movement.turn_time
+		spawn.state.turn_timer = self.stats.turn_time
 	end
 	return spawn
 end
 
-function enemies.monitor:check_hit()
+function enemies.turret_tank:check_hit()
 	-- TODO
 end
 
-function enemies.monitor:state_machine(dt)
+function enemies.turret_tank:state_machine(dt)
 	if self.state.aware == 0 then
 		-- Idle patrol
 		if self.state.direction == 1 then
 			-- moving right
-			self.aabb.x += self.movement.speed * dt
+			self.aabb.x += self.stats.speed * dt
 			self.state.idle_timer += dt
-			if self.state.idle_timer > self.movement.idle_loop then
-				self.state.idle_timer -= self.movement.idle_loop
+			if self.state.idle_timer > self.stats.idle_loop then
+				self.state.idle_timer -= self.stats.idle_loop
 			end
 			if self.aabb.x >= self.settings.right then
 				self.state.direction = 2
@@ -66,16 +55,16 @@ function enemies.monitor:state_machine(dt)
 		elseif self.state.direction == 2 then
 			-- turning left
 			self.state.turn_timer += dt
-			if self.state.turn_timer >= self.movement.turn_time then
+			if self.state.turn_timer >= self.stats.turn_time then
 				self.state.direction = 3
 				self.state.idle_timer = 0
 			end
 		elseif self.state.direction == 3 then
 			-- moving left
-			self.aabb.x -= self.movement.speed * dt
+			self.aabb.x -= self.stats.speed * dt
 			self.state.idle_timer += dt
-			if self.state.idle_timer > self.movement.idle_loop then
-				self.state.idle_timer -= self.movement.idle_loop
+			if self.state.idle_timer > self.stats.idle_loop then
+				self.state.idle_timer -= self.stats.idle_loop
 			end
 			if self.aabb.x <= self.settings.left then
 				self.state.direction = 4
@@ -98,14 +87,14 @@ function enemies.monitor:state_machine(dt)
 	end
 end
 
-function enemies.monitor:state_animation(dt)
+function enemies.turret_tank:state_animation(dt)
 	if self.state.aware == 0 then
 		if self.state.direction == 2 or self.state.direction == 4 then
-			return self.animation.turn, self.state.turn_timer / self.movement.turn_time
+			return self.animation.turn, self.state.turn_timer / self.stats.turn_time
 		end
 	else
 		if self.state.aware <= 0.45 then
-			return self.animation.alert_turn, self.state.turn_timer / self.movement.turn_time
+			return self.animation.alert_turn, self.state.turn_timer / self.stats.turn_time
 		else
 			return self.animation.alert, self.state.aware
 		end
