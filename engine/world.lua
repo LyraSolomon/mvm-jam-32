@@ -14,11 +14,31 @@ function world:draw()
 			gfx.COLOR_DARK_GRAY
 		)
 	end
+	-- integer wall positions place barrier between pixels
+	-- this draws on the pixels below and left 
 	for _, wall in pairs(world[current_scene].walls) do
-		gfx.line(wall.bottom.x, wall.bottom.y, wall.top.x, wall.top.y, gfx.COLOR_DARK_BLUE)
+		local offset = 0
+		if wall.position == "e" then
+			offset = 1
+		end
+		gfx.line(
+			wall.bottom.x + offset,
+			wall.bottom.y,
+			wall.top.x + offset,
+			wall.top.y,
+			gfx.COLOR_DARK_BLUE
+		)
 	end
 	for _, floor in pairs(world[current_scene].floors) do
-		gfx.line(floor.left.x, floor.left.y, floor.right.x, floor.right.y, gfx.COLOR_RED)
+		local offset = 0
+		if floor.position == "n" then
+			offset = -1
+		end
+		gfx.line(
+			floor.left.x,
+			floor.left.y + offset,
+			floor.right.x,
+			floor.right.y + offset, gfx.COLOR_DARK_BLUE)
 	end
 	for _, enemy in pairs(world[current_scene].active_enemies) do
 		enemy:draw()
