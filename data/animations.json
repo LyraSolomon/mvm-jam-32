@@ -11,12 +11,20 @@
             { "frame": 0, "end_at": 1 }
         ],
         "alert": [
+            { "frame": null, "end_at": 0.4 },
             { "frame": 10, "end_at": 0.5 },
             { "frame": 2, "end_at": 0.6 },
             { "frame": 13, "end_at": 0.7 },
             { "frame": 3, "end_at": 0.8 },
             { "frame": 14, "end_at": 0.9 },
             { "frame": 4, "end_at": 1 }
+        ],
+        "alert_turn": [
+            { "frame": 10, "end_at": 0.167 },
+            { "frame": 11, "end_at": 0.333 },
+            { "frame": 9, "end_at": 0.667 },
+            { "frame": 11, "end_at": 0.833 },
+            { "frame": 10, "end_at": 1 }
         ],
         "attacks": [
             { "windup": [

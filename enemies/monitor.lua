@@ -100,10 +100,14 @@ end
 
 function enemies.monitor:state_animation(dt)
 	if self.state.aware == 0 then
-		if self.state.direction == 1 or self.state.direction == 3 then
+		if self.state.direction == 2 or self.state.direction == 4 then
 			return self.animation.turn, self.state.turn_timer / self.movement.turn_time
 		end
 	else
-		return self.animation.alert, self.state.aware
+		if self.state.aware <= 0.45 then
+			return self.animation.alert_turn, self.state.turn_timer / self.movement.turn_time
+		else
+			return self.animation.alert, self.state.aware
+		end
 	end
 end
