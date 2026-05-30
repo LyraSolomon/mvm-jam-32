@@ -1,0 +1,37 @@
+{ "enemies":
+    { "monitor": {
+        "idle": [
+            { "frame": 0, "end_at": 1 }
+        ],
+        "turn": [
+            { "frame": 0, "end_at": 0.167 },
+            { "frame": 1, "end_at": 0.333 },
+            { "frame": 12, "end_at": 0.667 },
+            { "frame": 1, "end_at": 0.833 },
+            { "frame": 0, "end_at": 1 }
+        ],
+        "alert": [
+            { "frame": 10, "end_at": 0.5 },
+            { "frame": 2, "end_at": 0.6 },
+            { "frame": 13, "end_at": 0.7 },
+            { "frame": 3, "end_at": 0.8 },
+            { "frame": 14, "end_at": 0.9 },
+            { "frame": 4, "end_at": 1 }
+        ],
+        "attacks": [
+            { "windup": [
+                { "frame": 5, "end_at": 0.25 },
+                { "frame": 15, "end_at": 0.5 },
+                { "frame": 6, "end_at": 0.75 },
+                { "frame": 16, "end_at": 1 }
+            ], "recovery": [
+                { "frame": 7, "end_at": 0.333 },
+                { "frame": 17, "end_at": 0.667 },
+                { "frame": 8, "end_at": 1 }
+            ]}
+        ],
+        "death": [
+            { "frame": 18, "end_at": 1 }
+        ]
+    }}
+}

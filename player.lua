@@ -93,6 +93,16 @@ function player:update(dt)
 	self.velocity.x, target.x = physics_step(input_accel.x, self.movement.accel / self.movement.speed, self.velocity.x, self.aabb.x, dt)
 	self.velocity.y, target.y = physics_step(input_accel.y, self.movement.grav / self.movement.fall, self.velocity.y, self.aabb.y, dt)
 	player:move_to(target)
+
+	-- TODO for testing only, remove
+	if input.pressed(input.BTN2) then
+		for _, enemy in pairs(world[current_scene].active_enemies) do
+			enemy:inflict(1)
+		end
+	end
+	if input.pressed(input.BTN3) then
+		world:spawn_enemies()
+	end
 end
 
 function player:move_to(target)

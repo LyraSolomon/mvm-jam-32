@@ -20,7 +20,29 @@ function world:draw()
 	for _, floor in pairs(world[current_scene].floors) do
 		gfx.line(floor.left.x, floor.left.y, floor.right.x, floor.right.y, gfx.COLOR_RED)
 	end
+	for _, enemy in pairs(world[current_scene].active_enemies) do
+		enemy:draw()
+	end
 end
+
+function world:update_enemies(dt)
+	for _, enemy in pairs(world[current_scene].active_enemies) do
+		enemy:update(dt)
+	end
+end
+
+function world:spawn_enemies()
+	for scene, room in pairs(world) do
+		if type(room) == "table" then
+			room.active_enemies = {}
+			for i, enemy in pairs(room.enemies) do
+				room.active_enemies[i] = enemies[enemy.name]:spawn(enemy.settings)
+			end
+		end
+	end
+end
+
+world:spawn_enemies()
 
 function world:update_room()
 	for _, transition in pairs(world[current_scene].transitions) do

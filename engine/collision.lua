@@ -106,3 +106,38 @@ function collision.move_to(room, start, target)
 	end_point.w = start.w
 	return end_point, touching
 end
+
+function collision.lineofsight(room, aabb1, aabb2)
+	if (aabb1.x > aabb2.x) == (aabb1.y > aabb2.y) then
+		local collisions_sw = collision.path_interruptions(
+			room,
+			{ x = aabb1.x - aabb1.w/2, y = aabb1.y },
+			{ x = aabb2.x - aabb2.w/2, y = aabb2.y })
+		if collisions_sw.floor == nil and collisions_sw.wall == nil then
+			return true
+		end
+		local collisions_ne = collision.path_interruptions(
+			room,
+			{ x = aabb1.x + aabb1.w/2, y = aabb1.y - aabb1.h },
+			{ x = aabb2.x + aabb2.w/2, y = aabb2.y - aabb2.h })
+		if collisions_ne.floor == nil and collisions_ne.wall == nil then
+			return true
+		end
+	else
+		local collisions_se = collision.path_interruptions(
+			room,
+			{ x = aabb1.x + aabb1.w/2, y = aabb1.y },
+			{ x = aabb2.x + aabb2.w/2, y = aabb2.y })
+		if collisions_se.floor == nil and collisions_se.wall == nil then
+			return true
+		end
+		local collisions_nw = collision.path_interruptions(
+			room,
+			{ x = aabb1.x - aabb1.w/2, y = aabb1.y - aabb1.h },
+			{ x = aabb2.x - aabb2.w/2, y = aabb2.y - aabb2.h })
+		if collisions_nw.floor == nil and collisions_nw.wall == nil then
+			return true
+		end
+	end
+	return false
+end

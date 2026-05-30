@@ -11,6 +11,10 @@
         ],
         "transitions": [
             { "x1": 300, "x2": 320, "y1": 0, "y2": 180, "target": { "room": "room_2", "x": 21 }}
+        ],
+        "enemies": [
+            { "name": "monitor", "settings": { "left": 20, "right": 100, "y": 179, "direction": 1 }},
+            { "name": "monitor", "settings": { "left": 100, "right": 200, "y": 179, "direction": 1 }}
         ]
     },
     "room_2": {
@@ -24,6 +28,8 @@
         ],
         "transitions": [
             { "x1": 0, "x2": 20, "y1": 0, "y2": 180, "target": { "room": "initial", "x": 299 }}
+        ],
+        "enemies": [
         ]
     }
 }

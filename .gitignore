@@ -1,2 +1,4 @@
 export/
 *.swp
+sprites.png
+spritepage.lua
