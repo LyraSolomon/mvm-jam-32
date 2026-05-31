@@ -3,7 +3,7 @@ collision = {}
 -- returns the first interruption from (start) -> (target) along each axis as a ratio from 0-1
 function collision.path_interruptions(room, start, target)
 	-- no need to support sloped floors and walls here, since they can be compiled into
-	-- a combination of level floors/walls and teleporters
+	-- a combination of level floors/walls and teleporters (TODO)
 	local floor_collision = nil
 	local wall_collision = nil
 	for _, floor in pairs(room.floors) do
@@ -40,7 +40,7 @@ end
 -- like `path_interruptions`, except the object is a box rather than a point
 function collision.path_interruptions_aabb(room, start, displacement)
 	-- run path_interruptions on the corners of the hitbox
-	-- only in the direction of travel to avoid getting stuck on
+	-- only in the direction of travel to avoid getting stuck on convex corners
 	local collision_points_x = {}
 	if displacement.x > 0 then
 		collision_points_x = {
@@ -89,7 +89,7 @@ function collision.move_to(room, start, target)
 	local displacement = { x = target.x - start.x, y = target.y - start.y }
 	local floor_collision, wall_collision = collision.path_interruptions_aabb(room, start, displacement)
 
-	-- because floors and ceilings are checked separately, there is potential for clipiping (e.g. if the
+	-- because floors and ceilings are checked separately, there is potential for clipping (e.g. if the
 	-- player has sufficient vertical velocity that they would clear a wall, but is blocked by a ceiling)
 	-- to fix this, run collision a second time with the displacement capped if a collision is detected
 	-- add an epsilon so that collision detection remains true on the second run

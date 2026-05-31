@@ -10,6 +10,7 @@ end
 
 function _init()
 	State = {}
+	world:validate()
 end
 
 function _update(dt)
