@@ -2,9 +2,7 @@ enemies = {}
 --[[ example:
 	state = {
 		aware = 0,
-		direction = 1,
-		turn_timer = 0, TODO
-		last_detected_direction = 0,
+		last_detected_direction = nil,
 		attack_timer = 0,
 		current_attack = nil,
 		hp = 0,
@@ -19,7 +17,6 @@ enemies = {}
 		detect_time = 2,
 		forget_radius = 100,
 		forget_time = 1.5,
-		turn_time = 1,
 		attacks = {{
 			windup = 1,
 			recovery = 0.5,
@@ -47,7 +44,6 @@ function enemies:init()
 	self.state.death_timer = 0
 	self.state.idle_timer = 0
 	self.state.hp = self.stats.max_hp
-	self.state.turn_timer = 0
 end
 
 function enemies:inflict(damage)
@@ -63,6 +59,10 @@ function enemies:state_machine(dt)
 end
 
 function enemies:state_animation(dt)
+	-- override this
+end
+
+function enemies:flip()
 	-- override this
 end
 
@@ -85,14 +85,7 @@ function enemies:update(dt)
 		-- Update awareness meter
 		if dist_test(self.aabb, player.aabb, self.stats.detect_radius) then
 			if self.stats.xray or collision.lineofsight(world[current_scene], self.aabb, player.aabb) then
-				self.state.last_detected_direction = 0 -- TODO
-				if self.aabb.x < player.aabb.x then
-					self.state.last_detected_direction = 1
-					self.state.direction = 4
-				elseif self.aabb.x > player.aabb.x then
-					self.state.last_detected_direction = -1
-					self.state.direction = 2
-				end
+				self.state.last_detected_direction = { x = player.aabb.x - self.aabb.x, y = player.aabb.y - self.aabb.y }
 				self.state.aware = math.min(self.state.aware + dt / self.stats.detect_time, 1)
 			else
 				self.state.aware = math.max(self.state.aware - dt / self.stats.forget_time, 0)
@@ -134,7 +127,7 @@ function enemies:draw()
 		self.sprites_start + animation_frame(animation, animation_time),
 		self.aabb.x - self.aabb.w / 2,
 		self.aabb.y - self.aabb.h - self.stats.y_pad,
-		self.state.turn_timer / self.stats.turn_time < 0.5,
+		self:flip(),
 		false,
 		0,
 		gfx.COLOR_TRUE_WHITE,

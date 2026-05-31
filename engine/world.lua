@@ -42,12 +42,16 @@ function world:draw()
 		if wall.position == "e" then
 			offset = 1
 		end
+		local color = gfx.COLOR_DARK_BLUE
+		if wall.mark == "err" then
+			color = gfx.COLOR_RED
+		end
 		gfx.line(
 			wall.bottom.x + offset,
 			wall.bottom.y,
 			wall.top.x + offset,
 			wall.top.y,
-			gfx.COLOR_DARK_BLUE
+			color
 		)
 	end
 	for _, floor in pairs(world[current_scene].floors) do
@@ -55,11 +59,17 @@ function world:draw()
 		if floor.position == "n" then
 			offset = -1
 		end
+		local color = gfx.COLOR_DARK_BLUE
+		if floor.mark == "err" then
+			color = gfx.COLOR_RED
+		end
 		gfx.line(
 			floor.left.x,
 			floor.left.y + offset,
 			floor.right.x,
-			floor.right.y + offset, gfx.COLOR_DARK_BLUE)
+			floor.right.y + offset,
+			color
+		)
 	end
 	for _, enemy in pairs(world[current_scene].active_enemies) do
 		enemy:draw()
@@ -114,14 +124,16 @@ function world:validate()
 			local min_height = player.aabb.h + 1
 			local min_width = player.aabb.w + 1
 			for i, wall in pairs(room.walls) do
+				wall.mark = nil
 				if wall.bottom.x ~= wall.top.x or
 				   wall.bottom.y <= wall.top.y or
 				   wall.position ~= "e" and wall.position ~= "w" then
 					print("world validation: invalid " .. scene .. ".wall[" .. i .. "]")
+					wall.mark = "err"
 				else
 					if wall.bottom.y - wall.top.y < min_height then
-						-- TODO: this might be okay on steps?
 						print("world validation: length of " .. scene .. ".wall[" .. i .. "]")
+						wall.mark = "err"
 					end
 					local connection_s = false
 					local connection_n = false
@@ -153,21 +165,25 @@ function world:validate()
 					end
 					if not connection_s then
 						print("world validation: no connection to bottom of " .. scene .. ".wall[" .. i .. "]")
+						wall.mark = "err"
 					end
 					if not connection_n then
 						print("world validation: no connection to top of " .. scene .. ".wall[" .. i .. "]")
+						wall.mark = "err"
 					end
 				end
 			end
 			for i, floor in pairs(room.floors) do
+				floor.mark = nil
 				if floor.right.y ~= floor.left.y or
 				   floor.right.x <= floor.left.x or
 				   floor.position ~= "n" and floor.position ~= "s" then
 					print("world validation: invalid " .. scene .. ".floor[" .. i .. "]")
+					floor.mark = "err"
 				else
 					if floor.right.x - floor.left.x < min_width then
-						-- TODO: this might be okay on steps?
 						print("world validation: length of " .. scene .. ".floor[" .. i .. "]")
+						floor.mark = "err"
 					end
 					local connection_e = false
 					local connection_w = false
@@ -199,9 +215,11 @@ function world:validate()
 					end
 					if not connection_w then
 						print("world validation: no connection to left of " .. scene .. ".floor[" .. i .. "]")
+						floor.mark = "err"
 					end
 					if not connection_e then
 						print("world validation: no connection to right of " .. scene .. ".floor[" .. i .. "]")
+						floor.mark = "err"
 					end
 				end
 			end

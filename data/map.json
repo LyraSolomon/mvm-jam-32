@@ -2,11 +2,12 @@
     "initial": {
         "walls": [
             { "bottom": { "x": 100, "y": 115 }, "top": { "x": 100, "y": 100 }, "position": "e" },
-            { "bottom": { "x": 200, "y": 115 }, "top": { "x": 200, "y": 100 }, "position": "w" },
-            { "bottom": { "x": 150, "y": 115 }, "top": { "x": 150, "y": 100 }, "position": "w" }
+            { "bottom": { "x": 200, "y": 115 }, "top": { "x": 200, "y": 95 }, "position": "w" },
+            { "bottom": { "x": 106, "y": 115 }, "top": { "x": 106, "y": 95 }, "position": "e" }
         ],
         "floors": [
             { "left": { "x": 100, "y": 100 }, "right": { "x": 200, "y": 100 }, "position": "s" },
+            { "left": { "x": 106, "y": 95 }, "right": { "x": 200, "y": 95 }, "position": "s" },
             { "left": { "x": 100, "y": 115 }, "right": { "x": 200, "y": 115 }, "position": "n" }
         ],
         "transitions": [

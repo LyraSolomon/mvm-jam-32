@@ -27,6 +27,7 @@ function enemies.turret_tank:spawn(settings)
 	spawn.aabb.x = (settings.left + settings.right) / 2
 	spawn.aabb.y = settings.y
 	spawn.state.direction = settings.direction
+	spawn.state.turn_timer = 0
 	if settings.direction == 1 then
 		spawn.state.turn_timer = 0
 	elseif settings.direction == 3 then
@@ -37,6 +38,10 @@ end
 
 function enemies.turret_tank:check_hit()
 	-- TODO
+end
+
+function enemies:flip()
+	return self.state.turn_timer / self.stats.turn_time < 0.5
 end
 
 function enemies.turret_tank:state_machine(dt)
@@ -78,7 +83,13 @@ function enemies.turret_tank:state_machine(dt)
 			end
 		end
 	else
-		self.state.turn_timer = math.max(math.min(self.state.turn_timer - dt * self.state.last_detected_direction, 1), 0)
+		if self.state.last_detected_direction.x > 0 then
+			self.state.direction = 4
+			self.state.turn_timer = math.max(self.state.turn_timer - dt, 0)
+		elseif self.state.last_detected_direction.x < 0 then
+			self.state.direction = 2
+			self.state.turn_timer = math.min(self.state.turn_timer + dt, self.stats.turn_time)
+		end
 	end
 	-- attack
 	if self.state.aware == 1 then
